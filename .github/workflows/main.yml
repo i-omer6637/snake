@@ -13,7 +13,7 @@ jobs:
 
       - uses: Platane/snk@v3
         with:
-          github_user_name: jooker302
+          github_user_name: i-omer6637
           outputs: |
             dist/github-snake.svg
             dist/github-snake-dark.svg?palette=github-dark
