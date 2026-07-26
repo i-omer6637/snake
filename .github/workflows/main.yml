@@ -33,7 +33,16 @@ jobs:
           git clone https://github.com/Platane/snk.git snk
           cd snk
           git checkout "$SNK_REF"
-          bun install --frozen-lockfile
+          # Trim the workspace to only the packages build-snake.ts uses. The full
+          # monorepo pulls native/heavy tarballs (wrangler, canvas, gifsicle) that
+          # are unneeded here and flaky to fetch on CI. solver/svg-creator/types
+          # have no external runtime deps, so this install is tiny and reliable.
+          jq '.workspaces = ["packages/solver","packages/svg-creator","packages/types"]
+              | .dependencies = {"@snk/solver":"workspace:*","@snk/svg-creator":"workspace:*","@snk/types":"workspace:*"}' \
+            package.json > package.json.tmp
+          mv package.json.tmp package.json
+          rm -f bun.lock
+          bun install
           cp "$GITHUB_WORKSPACE/src/build-snake.ts" .
           bun build-snake.ts \
             --github_user="$USER_NAME" \
